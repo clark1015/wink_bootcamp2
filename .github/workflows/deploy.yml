@@ -43,5 +43,5 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             cd /home/ubuntu/app     # docker-compose.yml 이 있는 경로
-            docker-compose pull
-            docker-compose up -d
+            docker compose pull
+            docker compose up -d
