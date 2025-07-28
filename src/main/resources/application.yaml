@@ -20,3 +20,12 @@ spring:
     redis:
       port: ${REDIS_PORT:6379}
       host: ${SPRING_REDIS_HOST:localhost}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
