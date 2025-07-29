@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - backend-network
+
+  spring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-backend
+    restart: unless-stopped
+    ports:
+      - "${SPRING_PORT}:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_REDIS_HOST: redis
+    networks:
+      - backend-network
+
+volumes:
+  mysql-data:
+
+networks:
+  backend-network:
+    driver: bridge
