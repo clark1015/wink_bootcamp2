@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://${SPRING_DATASOURCE_HOST:localhost}:3306/${SPRING_DATASOURCE_NAME:login_db}
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME:login_user}
     password: ${SPRING_DATASOURCE_PASSWORD:login_pw}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -29,3 +29,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+jwt:
+  issuer: daeun1q2w3e@gmail.com
+  secret_key: ${JWT_SECRET}

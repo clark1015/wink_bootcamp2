@@ -1,6 +1,5 @@
 package hello.wink_bootcamp.domain.user.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
@@ -25,5 +25,6 @@ public class User {
 
     @Column(nullable = false, unique = true, length = 30)
     private String username;
+
 
 }
