@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -26,5 +25,6 @@ public class User {
 
     @Column(nullable = false, unique = true, length = 30)
     private String username;
+
 
 }
