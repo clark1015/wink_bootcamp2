@@ -1,12 +1,11 @@
 package hello.wink_bootcamp.global.config.jwt;
 
 
-
-import hello.wink_bootcamp.domain.user.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import hello.wink_bootcamp.domain.user.entity.User; // 이 import는 사용자(User) 엔티티 경로에 맞게 확인해주세요.
+import hello.wink_bootcamp.global.config.jwt.exception.AuthException;
+import hello.wink_bootcamp.global.config.jwt.exception.AuthExceptions;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -52,16 +51,24 @@ public class TokenProvider {
                 .compact();
     }
 
+
     //유효성 검증
-    public boolean validToken(String token) {
+    public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(jwtProperties.getSecretKey())
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            throw AuthException.of(AuthExceptions.EXPIRED_TOKEN);
+        } catch (UnsupportedJwtException e) {
+            throw AuthException.of(AuthExceptions.UNSUPPORTED_TOKEN);
+        } catch (MalformedJwtException e) {
+            throw AuthException.of(AuthExceptions.MALFORMED_TOKEN);
+        } catch (SecurityException | SignatureException e) {
+            throw AuthException.of(AuthExceptions.INVALID_TOKEN);
+        } catch (IllegalArgumentException e) {
+            throw AuthException.of(AuthExceptions.ILLEGAL_TOKEN);
         }
     }
     //토큰 기반 인증 정보 가져오기
@@ -81,11 +88,22 @@ public class TokenProvider {
     }
 
     private Claims getClaims(String token) {
-
-        return Jwts.parserBuilder()
-                .setSigningKey(jwtProperties.getSecretKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw AuthException.of(AuthExceptions.EXPIRED_TOKEN);
+        } catch (UnsupportedJwtException e) {
+            throw AuthException.of(AuthExceptions.UNSUPPORTED_TOKEN);
+        } catch (MalformedJwtException e) {
+            throw AuthException.of(AuthExceptions.MALFORMED_TOKEN);
+        } catch (SecurityException | SignatureException e) {
+            throw AuthException.of(AuthExceptions.INVALID_TOKEN);
+        } catch (IllegalArgumentException e) {
+            throw AuthException.of(AuthExceptions.ILLEGAL_TOKEN);
+        }
     }
 }
