@@ -1,5 +1,6 @@
 package hello.wink_bootcamp.global.config.jwt;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,3 +14,4 @@ public class JwtProperties {
     private String issuer;
     private String secretKey;
 }
+

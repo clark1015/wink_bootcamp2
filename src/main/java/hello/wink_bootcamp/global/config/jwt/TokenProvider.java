@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -24,50 +25,34 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 public class TokenProvider {
-
     private final JwtProperties jwtProperties;
-    private Key secretKey;
+    //private Key secretKey; // Key 객체를 저장할 필드 추가
 
-    // 의존성 주입 후 초기화를 수행하는 메소드. 한 번만 실행됨.
-    @PostConstruct
-    private void init() {
-        byte[] keyBytes = jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8);
-        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
-    }
 
-    /**
-     * 지정된 유저 정보와 만료 기간을 바탕으로 JWT 토큰을 생성합니다.
-     * @param user 유저 정보
-     * @param expiredAt 만료 시간
-     * @return 생성된 JWT 토큰
-     */
+
     public String generateToken(User user, Duration expiredAt) {
         Date now = new Date();
         return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
     }
 
-    /**
-     * JWT 토큰을 생성하는 핵심 로직
-     */
+    // JWT token 생성 메소드
     private String makeToken(Date expiry, User user) {
         Date now = new Date();
 
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ: JWT
-                .setIssuer(jwtProperties.getIssuer())         // 발급자
-                .setIssuedAt(now)                             // 발급일시
-                .setExpiration(expiry)                        // 만료일시
-                .setSubject(user.getEmail())                  // 토큰 제목 (주로 이메일)
-                .claim("id", user.getUserid())              // 클레임: 유저 ID
-                .signWith(secretKey, SignatureAlgorithm.HS256) // HS256 알고리즘과 비밀 키로 서명
-                .compact();                                   // 토큰 생성
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer(jwtProperties.getIssuer())
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .setSubject(user.getEmail())
+                .claim("id", user.getId())
+
+                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecretKey())
+                .compact();
     }
 
-    /**
-     * 주어진 JWT 토큰의 유효성을 검증합니다.
-     * @param token 검증할 JWT 토큰
-     * @return 유효하면 true, 아니면 false
-     */
+
+    //유효성 검증
     public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -86,35 +71,22 @@ public class TokenProvider {
             throw AuthException.of(AuthExceptions.ILLEGAL_TOKEN);
         }
     }
-
-    /**
-     * JWT 토큰을 기반으로 Spring Security의 Authentication 객체를 반환합니다.
-     * @param token JWT 토큰
-     * @return 인증 정보
-     */
+    //토큰 기반 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
-        org.springframework.security.core.userdetails.User user =
-                new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
+        //UserDetails userDetails = new org.springframework.security.core.userdetails.User(claims.getSubject(),"", authorities);
 
-        return new UsernamePasswordAuthenticationToken(user, token, authorities);
+        return new UsernamePasswordAuthenticationToken(new org.springframework.security.core.userdetails.User(claims.getSubject()
+                , "", authorities), token, authorities);
     }
-
-    /**
-     * 토큰에서 사용자 ID를 추출합니다.
-     * @param token JWT 토큰
-     * @return 사용자 ID
-     */
+    //토큰 기반으로 유저 ID 를 가져오는 메서드
     public Long getUserId(String token) {
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
     }
 
-    /**
-     * 토큰에서 Claims(정보)를 추출하는 내부 메소드
-     */
     private Claims getClaims(String token) {
         try {
             return Jwts.parserBuilder()
