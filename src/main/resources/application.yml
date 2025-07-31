@@ -1,5 +1,0 @@
-spring:
-  application: name=wink_bootcamp
-jwt:
-  issuer: daeun1q2w3e@gmail.com
-  secret_key: wink-bootcamp
