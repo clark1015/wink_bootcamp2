@@ -1,4 +1,4 @@
-package hello.wink_bootcamp.global.config.jwt;
+package hello.wink_bootcamp.global.jwt;
 
 
 import lombok.Getter;
