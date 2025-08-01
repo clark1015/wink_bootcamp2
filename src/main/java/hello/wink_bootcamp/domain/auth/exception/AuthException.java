@@ -1,4 +1,4 @@
-package hello.wink_bootcamp.global.config.jwt.exception;
+package hello.wink_bootcamp.domain.auth.exception;
 
 import hello.wink_bootcamp.global.exception.ApiException;
 import lombok.Getter;
@@ -16,4 +16,8 @@ public class AuthException extends ApiException {
         return new AuthException(errorCode);
     }
 
+    @Override
+    public AuthExceptions getErrorCode() {
+        return this.errorCode;
+    }
 }
