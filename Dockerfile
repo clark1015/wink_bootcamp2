@@ -5,6 +5,7 @@ WORKDIR /app
 # 캐시용 파일만 먼저 복사
 COPY build.gradle settings.gradle ./
 COPY gradle ./gradle
+COPY src/main/java ./src/main/java
 RUN gradle build -x test --no-daemon || return 0
 
 # 전체 소스 복사 후 실제 빌드
