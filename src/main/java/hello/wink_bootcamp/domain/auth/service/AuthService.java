@@ -24,10 +24,10 @@ public class AuthService {
     private final TokenBlackListService tokenBlackListService;
 
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> AuthException.of(AuthExceptions.EMAIL_NOT_REGISTERED));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw AuthException.of(AuthExceptions.INVALID_PASSWORD);
         }
 
