@@ -27,7 +27,12 @@ public enum AuthExceptions implements BaseErrorCode {
     UNAUTHORIZED_LOGOUT(401, "로그인한 사용자만 로그아웃할 수 있습니다."),
 
     //시스템 관련
-    INTERNAL_ERROR(500, "인증 처리 중 알 수 없는 에러가 발생했습니다.");
+    INTERNAL_ERROR(500, "인증 처리 중 알 수 없는 에러가 발생했습니다."),
+
+    //이메일 인증 관련
+    CODE_MISMATCH(400,"인증 코드가 일치하지 않습니다."),
+    CODE_NOT_FOUND(410,"인증 코드가 만료되었거나 존재하지 않습니다"),
+    EMAIL_ALREADY_EXISTS(409, "이미 가입된 이메일입니다.");
 
     private final int status;
     private final String message;
