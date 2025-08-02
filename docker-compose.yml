@@ -36,8 +36,21 @@ services:
     depends_on:
       - mysql
       - redis
+      - rabbitmq
     env_file:
       - .env
+    networks:
+      - backend-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP 기본 포트 (Spring이 이걸 통해 통신)
+      - "15672:15672"  # RabbitMQ 관리 UI 접속 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - backend-network
 
