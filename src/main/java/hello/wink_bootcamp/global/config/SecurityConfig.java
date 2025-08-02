@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
 
-//                .addFilterBefore(exceptionHandlerFilter(), TokenAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
