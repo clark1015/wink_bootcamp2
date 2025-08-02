@@ -1,5 +1,9 @@
 package hello.wink_bootcamp.global.config.jwt;
 
+import hello.wink_bootcamp.domain.user.entity.User;
+import hello.wink_bootcamp.domain.user.repository.UserRepository;
+import hello.wink_bootcamp.global.jwt.JwtProperties;
+import hello.wink_bootcamp.global.jwt.TokenProvider;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

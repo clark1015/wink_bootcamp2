@@ -19,7 +19,25 @@ spring:
   data:
     redis:
       port: ${REDIS_PORT:6379}
-      host: ${SPRING_REDIS_HOST:localhost}
+      host: redis
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "${GMAIL_USERNAME}"
+    password: "${GMAIL_PASSWORD}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:rabbitmq}     # Docker 네트워크에서 rabbitmq 컨테이너명으로
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
 management:
   endpoints:
@@ -33,3 +51,11 @@ management:
 jwt:
   issuer: daeun1q2w3e@gmail.com
   secret_key: ${JWT_SECRET}
+
+rabbitmq:
+  exchange:
+    email: email.exchange
+  queue:
+    email: email.queue
+  routing-key:
+    email: email.routing.key

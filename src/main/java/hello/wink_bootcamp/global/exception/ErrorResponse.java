@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ErrorResponse {
-    private final String code;   // 예: USER_NOT_FOUND
-    private final String message; // 예: 사용자를 찾을 수 없습니다
+    private final int status;   //401
+    private final String message; //사용자를 찾을 수 없습니다
 }
