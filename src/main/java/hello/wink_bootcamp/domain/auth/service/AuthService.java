@@ -1,7 +1,7 @@
 package hello.wink_bootcamp.domain.auth.service;
 
-import hello.wink_bootcamp.domain.auth.dto.LoginRequest;
-import hello.wink_bootcamp.domain.auth.dto.LoginResponse;
+import hello.wink_bootcamp.domain.auth.dto.request.LoginRequest;
+import hello.wink_bootcamp.domain.auth.dto.response.LoginResponse;
 import hello.wink_bootcamp.domain.auth.exception.AuthException;
 import hello.wink_bootcamp.domain.auth.exception.AuthExceptions;
 import hello.wink_bootcamp.domain.user.entity.User;

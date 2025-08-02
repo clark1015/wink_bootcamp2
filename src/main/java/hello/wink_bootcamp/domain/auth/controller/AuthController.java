@@ -1,10 +1,9 @@
 package hello.wink_bootcamp.domain.auth.controller;
 
-import hello.wink_bootcamp.domain.auth.dto.LoginRequest;
-import hello.wink_bootcamp.domain.auth.dto.LoginResponse;
+import hello.wink_bootcamp.domain.auth.dto.request.LoginRequest;
+import hello.wink_bootcamp.domain.auth.dto.response.LoginResponse;
 import hello.wink_bootcamp.domain.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

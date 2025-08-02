@@ -1,4 +1,4 @@
-package hello.wink_bootcamp.domain.auth.dto;
+package hello.wink_bootcamp.domain.auth.dto.request;
 
 import lombok.Getter;
 
