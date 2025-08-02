@@ -32,7 +32,11 @@ public enum AuthExceptions implements BaseErrorCode {
     //이메일 인증 관련
     CODE_MISMATCH(400,"인증 코드가 일치하지 않습니다."),
     CODE_NOT_FOUND(410,"인증 코드가 만료되었거나 존재하지 않습니다"),
-    EMAIL_ALREADY_EXISTS(409, "이미 가입된 이메일입니다.");
+    EMAIL_ALREADY_EXISTS(409, "이미 가입된 이메일입니다."),
+    EMAIL_NOT_VERIFIED(403,"인증되지 않은 이메일입니다." ),
+
+    //회원가입 관련
+    USERNAME_ALREADY_EXISTS(409, "이미 사용중인 닉네임입니다.");
 
     private final int status;
     private final String message;
