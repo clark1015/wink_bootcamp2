@@ -2,6 +2,7 @@ package hello.wink_bootcamp.domain.auth.controller;
 
 import hello.wink_bootcamp.domain.auth.dto.request.EmailSendRequest;
 import hello.wink_bootcamp.domain.auth.dto.request.EmailVerifyRequest;
+import hello.wink_bootcamp.domain.auth.dto.response.EmailSendResponse;
 import hello.wink_bootcamp.domain.auth.dto.response.EmailVerifyResponse;
 import hello.wink_bootcamp.domain.auth.service.EmailAuthService;
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ public class EmailAuthController {
     private final EmailAuthService emailAuthService;
 
     @PostMapping("/email")
-    public ResponseEntity<Void> sendEmailCode(@Valid @RequestBody EmailSendRequest request) {
+    public ResponseEntity<EmailSendResponse> sendEmailCode(@Valid @RequestBody EmailSendRequest request) {
         //이메일로 인증 코드 보내기
         emailAuthService.sendVerificationCode(request.email());
         return ResponseEntity.ok().build();
