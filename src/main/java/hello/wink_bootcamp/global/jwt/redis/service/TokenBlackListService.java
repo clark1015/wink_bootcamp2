@@ -1,4 +1,4 @@
-package hello.wink_bootcamp.global.jwt.redis;
+package hello.wink_bootcamp.global.jwt.redis.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

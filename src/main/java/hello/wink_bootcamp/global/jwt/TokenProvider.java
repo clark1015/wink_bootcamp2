@@ -32,29 +32,39 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private Key secretKey;
 
+    private static final String TOKEN_TYPE_ACCESS = "ACCESS";
+    private static final String TOKEN_TYPE_REFRESH = "REFRESH";
+
     @PostConstruct
     protected void init() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(User user, Duration expiredAt) {
+    // 액세스 토큰 생성
+    public String generateAccessToken(User user, Duration expiredAt) {
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user, TOKEN_TYPE_ACCESS);
     }
 
-    // JWT token 생성 메소드
-    private String makeToken(Date expiry, User user) {
+    // 리프레시 토큰 생성
+    public String generateRefreshToken(User user, Duration expiredAt) {
+        Date now = new Date();
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user, TOKEN_TYPE_REFRESH);
+    }
+
+    // JWT token 생성 메소드 (타입 추가)
+    private String makeToken(Date expiry, User user, String tokenType) {
         Date now = new Date();
 
-        log.debug("🔐 secretKey = {}", secretKey);
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer(jwtProperties.getIssuer())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .setSubject(user.getEmail())
-                .claim("id", user.getUserid())
+                .setSubject(String.valueOf(user.getUserid()))
+                .claim("email", user.getEmail())
+                .claim("tokenType", tokenType)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -84,8 +94,9 @@ public class TokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
-        Long userId = claims.get("id", Long.class);
-        String email = claims.getSubject(); // subject에 email 넣었다고 가정
+        Long userId = Long.valueOf(claims.getSubject());  // subject에서 userId
+        String email = claims.get("email", String.class); // email 클레임에서 email
+
 
         Collection<GrantedAuthority> authorities =
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
@@ -97,7 +108,7 @@ public class TokenProvider {
     //토큰 기반으로 유저 ID 를 가져오는 메서드
     public Long getUserId(String token) {
         Claims claims = getClaims(token);
-        return claims.get("id", Long.class);
+        return Long.valueOf(claims.getSubject()) ;
     }
 
     private Claims getClaims(String token) {
@@ -130,5 +141,23 @@ public class TokenProvider {
 
         long now = System.currentTimeMillis();
         return Math.max((expiration.getTime() - now) / 1000, 0) ; // 초 단위
+    }
+
+    public boolean isRefreshToken(String token) {
+        Claims claims = getClaims(token);
+        String tokenType = claims.get("tokenType", String.class);
+        return TOKEN_TYPE_REFRESH.equals(tokenType);
+    }
+
+    public boolean isAccessToken(String token) {
+        Claims claims = getClaims(token);
+        String tokenType = claims.get("tokenType", String.class);
+        return TOKEN_TYPE_ACCESS.equals(tokenType);
+    }
+
+    // 토큰에서 이메일 가져오기
+    public String getEmailFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("email", String.class);
     }
 }

@@ -21,6 +21,7 @@ public enum AuthExceptions implements BaseErrorCode {
     UNSUPPORTED_TOKEN(401, "지원되지 않는 JWT 형식입니다."),
     ILLEGAL_TOKEN(401, "JWT가 올바르지 않은 구조입니다."),
     BLACKLISTED_TOKEN(401, "이미 로그아웃된 토큰입니다."),
+    INVALID_TOKEN_TYPE(400, "올바르지 않은 토큰 타입입니다."),
 
     //로그아웃 관련
     ALREADY_LOGGED_OUT(400, "이미 로그아웃된 사용자입니다."),
@@ -36,7 +37,12 @@ public enum AuthExceptions implements BaseErrorCode {
     EMAIL_NOT_VERIFIED(403,"인증되지 않은 이메일입니다." ),
 
     //회원가입 관련
-    USERNAME_ALREADY_EXISTS(409, "이미 사용중인 닉네임입니다.");
+    USERNAME_ALREADY_EXISTS(409, "이미 사용중인 닉네임입니다."),
+
+    //리프레시 토큰 관련
+    USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
+    REFRESH_TOKEN_NOT_FOUND(404, "리프레시 토큰을 찾을 수 없습니다."),
+    INVALID_REFRESH_TOKEN(401, "유효하지 않은 리프레시 토큰입니다.");
 
     private final int status;
     private final String message;

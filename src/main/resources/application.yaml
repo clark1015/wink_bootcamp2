@@ -51,6 +51,8 @@ management:
 jwt:
   issuer: daeun1q2w3e@gmail.com
   secret_key: ${JWT_SECRET}
+  access-token-expiration: 900000
+  refresh-token-expiration: 1209600000
 
 rabbitmq:
   exchange:
