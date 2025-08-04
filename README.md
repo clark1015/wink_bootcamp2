@@ -1,49 +1,45 @@
 # 🚀 WinkBootCamp
 
-**현대적인 클라우드 네이티브 인증 시스템** - Spring Boot 기반의 확장 가능하고 안정적인 백엔드 API 서버입니다.
+**Spring Boot 기반 인증 시스템** - JWT, OAuth2, 이메일 인증을 지원하는 백엔드 API 서버입니다.
 
-## ✨ 핵심 하이라이트
+## ✨ 주요 특징
 
-### 🎯 **비동기 메시징 아키텍처**
-- **RabbitMQ 기반 이메일 서비스**: Producer/Consumer 패턴으로 **결합도 최소화**
+### 🎯 **비동기 메시징 시스템**
+- **RabbitMQ 기반 이메일 서비스**: Producer/Consumer 패턴으로 결합도 최소화
 - **비동기 처리**: 이메일 발송으로 인한 API 응답 지연 제거
-- **확장성**: 이메일 서비스 독립적 확장 및 장애 격리
 
-### ⚡ **Redis 기반 고성능 캐싱**
-- **인증번호 TTL 관리**: 5분 자동 만료로 보안성 향상
+### ⚡ **Redis 기반 토큰 관리**
+- **인증번호 TTL 관리**: 5분 자동 만료
 - **JWT 블랙리스트**: 로그아웃된 토큰 즉시 무효화
-- **세션 관리**: Refresh Token 안전한 저장 및 관리
-- **성능 최적화**: 데이터베이스 부하 감소
+- **Refresh Token 저장**: 14일 TTL로 안전한 토큰 관리
 
-### 🎨 **프리미엄 이메일 UI**
-- **반응형 HTML 템플릿**: 모바일/데스크톱 최적화
-- **브랜드 일관성**: 그라데이션과 애니메이션 효과
-- **사용자 경험**: 직관적인 인증번호 표시
+### 🎨 **반응형 이메일 템플릿**
+- **HTML 템플릿**: 깔끔한 디자인의 인증 이메일
+- **반응형 디자인**: 모바일/데스크톱 지원
 
-### ☁️ **클라우드 네이티브 배포**
-- **CI/CD 파이프라인**: GitHub Actions 자동화
-- **Docker 컨테이너화**: 일관된 배포 환경
-- **AWS 고가용성**: Auto Scaling Group + Load Balancer
-- **무중단 배포**: Blue/Green 배포 전략
+### 🐳 **Docker 컨테이너화**
+- **일관된 배포 환경**: Docker Compose 기반 멀티 컨테이너
+- **개발/운영 환경 통일**: 환경별 설정 관리
 
 ## 🏗️ 시스템 아키텍처
 
 ```
-                    ☁️ AWS Cloud Infrastructure
-    ┌─────────────────────────────────────────────────────────────┐
-    │                                                             │
-    │  📡 Application Load Balancer (ALB)                        │
-    │          ↓                                                  │
-    │    🔄 Auto Scaling Group                                   │
-    │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-    │  │   EC2-1     │  │   EC2-2     │  │   EC2-N     │        │
-    │  │ Spring Boot │  │ Spring Boot │  │ Spring Boot │        │
-    │  │ (Port:8080) │  │ (Port:8080) │  │ (Port:8080) │        │
-    │  └─────────────┘  └─────────────┘  └─────────────┘        │
-    └─────────────────────────────────────────────────────────────┘
-                                 │
-                    📊 GitHub Actions CI/CD
-                    🐳 Docker Container Deploy
+                    ☁️ AWS EC2 Instance
+                          │
+                    📊 GitHub Actions
+                    🐳 Docker Deploy  
+                          │
+                    ┌─────────────▼───────────────┐
+                    │     Spring Boot API         │
+                    │      (Port: 8080)          │
+                    │                             │
+                    │  ┌─────────────────────┐    │
+                    │  │ 🔐 Auth Controller  │    │
+                    │  │ 📧 Email Controller │    │
+                    │  │ 🛡️ JWT Filter       │    │
+                    │  │ 🔑 OAuth2 Config    │    │
+                    │  └─────────────────────┘    │
+                    └─────────────┬───────────────┘
                                  │
          ┌───────────────────────┼───────────────────────┐
          │                       │                       │
@@ -84,18 +80,16 @@
 - **Framework**: Spring Boot 3.5.4 (Java 21)
 - **Security**: Spring Security + JWT
 - **Database**: MySQL 8.0
-- **Cache**: Redis 7.2 (TTL 기반 데이터 관리)
+- **Cache**: Redis 7.2 (TTL 기반 토큰 관리)
 - **Message Queue**: RabbitMQ 3 (비동기 이메일 처리)
 - **Email**: Spring Mail (Gmail SMTP)
 - **Build Tool**: Gradle
 
 ### DevOps & Infrastructure  
 - **Containerization**: Docker & Docker Compose
-- **CI/CD**: GitHub Actions (자동화 파이프라인)
-- **Cloud Platform**: AWS
-  - **Compute**: EC2 Auto Scaling Group
-  - **Load Balancing**: Application Load Balancer (ALB)
-  - **High Availability**: Multi-AZ 배포
+- **CI/CD**: GitHub Actions (자동 배포)
+- **Cloud**: AWS EC2 
+- **Registry**: GHCR (GitHub Container Registry)
 - **Monitoring**: Spring Boot Actuator
 
 ### Authentication & Security
@@ -112,13 +106,12 @@
 - **토큰 생명주기 관리**: Access Token 자동 갱신
 - **보안 강화**: Redis 기반 실시간 토큰 블랙리스트
 
-### ⚡ **Redis 기반 성능 최적화**
+### ⚡ **Redis 기반 토큰 관리**
 ```yaml
 Redis 활용 영역:
 ├── 🔢 이메일 인증코드 (TTL: 5분)
 ├── 🔄 Refresh Token 저장 (TTL: 14일)  
-├── ❌ JWT 블랙리스트 (로그아웃 토큰)
-└── 📊 세션 캐싱 (응답속도 향상)
+└── ❌ JWT 블랙리스트 (로그아웃 토큰)
 ```
 
 ### 📨 **비동기 이메일 아키텍처** 
@@ -132,13 +125,14 @@ EmailAuthProducer → RabbitMQ Queue → EmailAuthConsumer → SMTP
 
 **주요 장점:**
 - ✅ **API 응답속도 향상**: 이메일 발송 대기시간 제거
-- ✅ **장애 격리**: 이메일 서비스 장애가 인증 API에 영향 없음
-- ✅ **확장성**: 이메일 서비스 독립적 스케일링
-- ✅ **재시도 메커니즘**: 발송 실패시 자동 재처리
+- ✅ **결합도 최소화**: 이메일 서비스와 인증 API 분리
+- ✅ **안정성**: 이메일 발송 실패가 인증 프로세스에 영향 없음
 
 ### 🎨 **반응형 이메일 템플릿**
 **사용자 경험을 고려한 깔끔한 HTML 이메일 디자인**
-<img width="569" height="889" alt="image" src="https://github.com/user-attachments/assets/9ab7b11f-3722-45c9-9e93-ade902197429" />
+
+<img width="577" height="889" alt="image" src="https://github.com/user-attachments/assets/e49486a3-9a74-476f-8f78-5558fb287162" />
+
 
 **주요 특징:**
 - 📱 **반응형 디자인**: 모바일/데스크톱 환경 지원
@@ -146,35 +140,57 @@ EmailAuthProducer → RabbitMQ Queue → EmailAuthConsumer → SMTP
 - 📧 **명확한 정보 전달**: 인증번호 가독성 최적화
 - 🔒 **보안 안내**: 사용자 보안 인식 제고
 
-### ☁️ **AWS 고가용성 인프라**
-**클라우드 네이티브 배포로 99.9% 가용성 보장**
-
-```yaml
-AWS 인프라 구성:
-├── 🌐 Application Load Balancer
-│   ├── Health Check (자동 장애 감지)
-│   └── SSL/TLS 터미네이션
-├── 🔄 Auto Scaling Group  
-│   ├── Min: 1대, Max: 3대
-│   ├── CPU/Memory 기반 자동 확장
-│   └── Multi-AZ 배포 (장애 복구)
-└── 🐳 EC2 + Docker
-    ├── Blue/Green 무중단 배포
-    └── 컨테이너 기반 격리 환경
-```
-
 ### 🚀 **GitHub Actions CI/CD**
-**완전 자동화된 배포 파이프라인**
+**자동화된 배포 파이프라인으로 개발 효율성 향상**
 
 ```yaml
 배포 프로세스:
-1. 🔍 Code Push → GitHub
-2. 🧪 Automated Testing (Unit + Integration)
-3. 🏗️ Docker Image Build
-4. 📦 AWS ECR Push
-5. 🚀 EC2 Auto Scaling Group Deploy
-6. ✅ Health Check & Rollback
+1. 🔍 Code Push → develop 브랜치
+2. 🏗️ Docker Image Build  
+3. 📦 GHCR (GitHub Container Registry) Push
+4. 🚀 EC2 SSH 접속 → Docker Compose 배포
+5. ✅ 컨테이너 자동 재시작
 ```
+
+### ☁️ **AWS EC2 배포**
+**클라우드 인프라 기반 안정적인 서비스 운영**
+
+```yaml
+배포 환경:
+├── 🖥️ AWS EC2 Instance
+├── 🐳 Docker Compose (멀티 컨테이너)
+├── 📦 GHCR 이미지 저장소
+└── 🔄 자동 배포 (develop 브랜치)
+```
+
+## 🛡️ 보안 특징
+
+- **JWT 기반 무상태 인증**: 확장성과 성능 최적화
+- **토큰 만료 정책**: Access Token 15분, Refresh Token 14일
+- **블랙리스트 시스템**: 로그아웃된 토큰 즉시 무효화
+- **이메일 인증**: 계정 생성시 이메일 소유권 검증
+- **OAuth2 보안**: 카카오 표준 OAuth2 프로토콜 준수
+- **환경 변수**: 민감한 정보 외부 설정 파일로 관리
+
+## 🔄 데이터 플로우
+
+### 회원가입 플로우
+1. **이메일 인증코드 요청** → Redis에 코드 저장 (5분 TTL)
+2. **RabbitMQ** → 이메일 발송 큐에 메시지 추가
+3. **이메일 발송** → Gmail SMTP로 인증코드 전송
+4. **코드 검증** → Redis에서 코드 확인
+5. **회원가입** → MySQL에 사용자 정보 저장
+
+### 로그인 플로우
+1. **일반 로그인**: 이메일/비밀번호 검증
+2. **소셜 로그인**: 카카오 OAuth2 연동
+3. **JWT 발급**: Access Token + Refresh Token
+4. **Redis 저장**: Refresh Token 저장 (14일 TTL)
+
+### 로그아웃 플로우
+1. **토큰 블랙리스트**: Access Token을 Redis 블랙리스트에 추가
+2. **Refresh Token 삭제**: Redis에서 Refresh Token 제거
+3. **토큰 무효화**: 이후 요청시 블랙리스트 확인
 
 ## 🚀 설치 및 실행
 
