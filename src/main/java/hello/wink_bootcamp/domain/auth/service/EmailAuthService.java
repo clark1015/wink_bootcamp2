@@ -1,5 +1,6 @@
 package hello.wink_bootcamp.domain.auth.service;
 
+import hello.wink_bootcamp.domain.auth.dto.response.EmailSendResponse;
 import hello.wink_bootcamp.domain.auth.dto.response.EmailVerifyResponse;
 import hello.wink_bootcamp.domain.auth.exception.AuthException;
 import hello.wink_bootcamp.domain.auth.exception.AuthExceptions;
@@ -34,7 +35,7 @@ public class EmailAuthService {
      * 이메일 인증번호 발송
      * @param email 인증번호를 받을 이메일
      */
-    public void sendVerificationCode(String email) {
+    public EmailSendResponse sendVerificationCode(String email) {
         validateEmailNotRegistered(email);
 
         String verificationCode = generateSecureRandomCode();
@@ -42,6 +43,7 @@ public class EmailAuthService {
         sendEmailAsync(email, verificationCode);
 
         log.info("인증번호 발송 완료: {}", email);
+        return new EmailSendResponse("인증번호가 발송되었습니다.");
     }
 
     /**

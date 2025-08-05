@@ -2,14 +2,18 @@ package hello.wink_bootcamp.domain.auth.service;
 
 import hello.wink_bootcamp.domain.auth.dto.request.LoginRequest;
 import hello.wink_bootcamp.domain.auth.dto.request.RegisterRequest;
+import hello.wink_bootcamp.domain.auth.dto.request.TokenRefreshRequest;
 import hello.wink_bootcamp.domain.auth.dto.response.LoginResponse;
 import hello.wink_bootcamp.domain.auth.dto.response.RegisterResponse;
+import hello.wink_bootcamp.domain.auth.dto.response.TokenRefreshResponse;
 import hello.wink_bootcamp.domain.auth.exception.AuthException;
 import hello.wink_bootcamp.domain.auth.exception.AuthExceptions;
 import hello.wink_bootcamp.domain.user.entity.User;
 import hello.wink_bootcamp.domain.user.repository.UserRepository;
+import hello.wink_bootcamp.global.jwt.JwtProperties;
 import hello.wink_bootcamp.global.jwt.TokenProvider;
-import hello.wink_bootcamp.global.jwt.redis.TokenBlackListService;
+import hello.wink_bootcamp.global.jwt.redis.service.RefreshTokenService;
+import hello.wink_bootcamp.global.jwt.redis.service.TokenBlackListService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +33,8 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final TokenBlackListService tokenBlackListService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtProperties jwtProperties; // 추가
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
@@ -38,10 +44,26 @@ public class AuthService {
             throw AuthException.of(AuthExceptions.INVALID_PASSWORD);
         }
 
-        String token = tokenProvider.generateToken(user, Duration.ofHours(2));
-        return new LoginResponse(user.getUserid(), user.getEmail(), token);
-    }
+        // JwtProperties 사용
+        String accessToken = tokenProvider.generateAccessToken(
+                user,
+                Duration.ofMillis(jwtProperties.getAccessTokenExpiration())
+        );
+        String newRefreshToken = tokenProvider.generateRefreshToken(
+                user,
+                Duration.ofMillis(jwtProperties.getRefreshTokenExpiration())
+        );
 
+        long expirationInSeconds = tokenProvider.getRemainingExpiration(newRefreshToken);
+        refreshTokenService.saveRefreshToken(user.getUserid(), newRefreshToken, expirationInSeconds);
+
+        return LoginResponse.builder()
+                .userId(user.getUserid())
+                .email(user.getEmail())
+                .accessToken(accessToken)
+                .refreshToken(newRefreshToken)
+                .build();
+    }
 
     public void logout(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
@@ -58,12 +80,13 @@ public class AuthService {
         }
 
         long expirationInSeconds = tokenProvider.getRemainingExpiration(pureToken);
+        long userId = tokenProvider.getUserId(pureToken);
 
         tokenBlackListService.blacklistToken(pureToken, expirationInSeconds);
+        refreshTokenService.deleteAllByUserId(userId);
     }
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final Duration DEFAULT_TOKEN_EXPIRY = Duration.ofHours(2);
     private static final String EMAIL_VERIFY_KEY_PREFIX = "email:verify:";
     private static final String VERIFIED_STATUS = "verified";
 
@@ -93,6 +116,7 @@ public class AuthService {
                 "회원가입이 완료되었습니다."
         );
     }
+
     private User createUser(RegisterRequest request) {
         return User.builder()
                 .email(request.email())
@@ -129,5 +153,62 @@ public class AuthService {
             log.warn("중복된 사용자명으로 회원가입 시도: {}", username);
             throw AuthException.of(AuthExceptions.USERNAME_ALREADY_EXISTS);
         }
+    }
+
+    @Transactional
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
+        String refreshToken = request.refreshToken();
+
+        // 리프레시 토큰 유효성 검증 (만료, 서명 등)
+        if (!tokenProvider.validateToken(refreshToken)) {
+            throw AuthException.of(AuthExceptions.INVALID_TOKEN);
+        }
+
+        // 리프레시 토큰인지 확인
+        if (!tokenProvider.isRefreshToken(refreshToken)) {
+            throw AuthException.of(AuthExceptions.INVALID_TOKEN_TYPE);
+        }
+
+        // 사용자 정보 조회
+        Long userId = tokenProvider.getUserId(refreshToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> AuthException.of(AuthExceptions.USER_NOT_FOUND));
+
+        // DB에 저장된 리프레시 토큰과 일치하는지 확인 (stateful 검증)
+        String storedRefreshToken = refreshTokenService.findByUserId(userId)
+                .orElseThrow(() -> AuthException.of(AuthExceptions.REFRESH_TOKEN_NOT_FOUND));
+
+        if (!storedRefreshToken.equals(refreshToken)) {
+            throw AuthException.of(AuthExceptions.INVALID_REFRESH_TOKEN);
+        }
+
+        // 기존 Access Token 블랙리스트 처리 (요청 헤더에서 가져오기)
+        String oldAccessToken = request.accessToken(); // → 이 필드가 존재해야 함
+        if (oldAccessToken != null) {
+            if (tokenProvider.validateToken(oldAccessToken)) {
+                long remainingTime = tokenProvider.getRemainingExpiration(oldAccessToken);
+                tokenBlackListService.blacklistToken(oldAccessToken, remainingTime);
+            }
+        }
+
+
+        // 새로운 액세스 토큰 생성 (JwtProperties 사용)
+        String newAccessToken = tokenProvider.generateAccessToken(
+                user,
+                Duration.ofMillis(jwtProperties.getAccessTokenExpiration())
+        );
+
+        // 새로운 리프레시 토큰 생성 (RTR 방식, JwtProperties 사용)
+        String newRefreshToken = tokenProvider.generateRefreshToken(
+                user,
+                Duration.ofMillis(jwtProperties.getRefreshTokenExpiration())
+        );
+
+        // 기존 리프레시 토큰 삭제 및 새 토큰 저장 (DB에서 관리)
+        refreshTokenService.deleteAllByUserId(userId);
+        long expirationInSeconds = tokenProvider.getRemainingExpiration(newRefreshToken);
+        refreshTokenService.saveRefreshToken(userId, newRefreshToken, expirationInSeconds);
+
+        return new TokenRefreshResponse(newAccessToken, newRefreshToken);
     }
 }

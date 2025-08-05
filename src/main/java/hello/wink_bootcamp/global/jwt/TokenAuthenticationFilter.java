@@ -2,7 +2,7 @@ package hello.wink_bootcamp.global.jwt;
 
 import hello.wink_bootcamp.domain.auth.exception.AuthException;
 import hello.wink_bootcamp.domain.auth.exception.AuthExceptions;
-import hello.wink_bootcamp.global.jwt.redis.TokenBlackListService;
+import hello.wink_bootcamp.global.jwt.redis.service.TokenBlackListService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

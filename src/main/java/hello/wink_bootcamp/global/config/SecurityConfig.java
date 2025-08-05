@@ -1,10 +1,12 @@
 package hello.wink_bootcamp.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hello.wink_bootcamp.domain.oauth.handler.OAuth2SuccessHandler;
+import hello.wink_bootcamp.domain.oauth.service.CustomOAuth2UserService;
 import hello.wink_bootcamp.global.exception.filter.ExceptionHandlerFilter;
 import hello.wink_bootcamp.global.jwt.TokenAuthenticationFilter;
 import hello.wink_bootcamp.global.jwt.TokenProvider;
-import hello.wink_bootcamp.global.jwt.redis.TokenBlackListService;
+import hello.wink_bootcamp.global.jwt.redis.service.TokenBlackListService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +26,10 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final TokenBlackListService tokenBlackListService;
     private final ObjectMapper objectMapper;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
@@ -34,9 +37,21 @@ public class SecurityConfig {
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth->auth
-                                .requestMatchers("/api/auth/**",
-                                        "/v3/api-docs/**").permitAll()
+                                .requestMatchers(
+                                        "/api/auth/**",
+                                        "/v3/api-docs/**",
+                                        "/oauth2/**",
+                                        "/hello"
+                                ).permitAll()
                                 .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userinfo -> userinfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
+//                        .failureHandler(failureHanlder)
+
                 )
 
                 .addFilterBefore(exceptionHandlerFilter(), UsernamePasswordAuthenticationFilter.class)
