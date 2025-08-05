@@ -16,7 +16,7 @@ spring:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
             # ⭐ redirect-uri 수정
-            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+            redirect-uri: "http://auth.junhwan.me/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-name: Kakao
             # ⭐ client-authentication-method 추가
