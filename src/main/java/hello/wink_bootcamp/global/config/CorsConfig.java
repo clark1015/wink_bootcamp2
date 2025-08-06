@@ -8,6 +8,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
@@ -19,23 +20,31 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 개발 환경에서는 모든 Origin 허용 (운영에서는 특정 도메인만)
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:*",      // 로컬 개발 (모든 포트)
-                "http://127.0.0.1:*",      // 로컬 개발
-                "https://your-frontend-domain.com"  // 운영 프론트엔드 도메인
-        ));
+        // 🌐 모든 Origin 허용 (개발환경용)
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
+        // 📡 모든 HTTP 메서드 허용
         configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"
         ));
 
-        configuration.setAllowedHeaders(Arrays.asList(
-                "Authorization", "Cache-Control", "Content-Type"
-        ));
+        // 📋 모든 헤더 허용
+        configuration.setAllowedHeaders(List.of("*"));
 
+        // 🔐 인증 정보 포함 허용
         configuration.setAllowCredentials(true);
+
+        // ⏰ Preflight 캐시 시간
         configuration.setMaxAge(3600L);
+
+        // 📤 클라이언트 접근 가능 헤더
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
