@@ -40,8 +40,8 @@ public class SecurityConfig {
                         auth->auth
                                 .requestMatchers(
                                         "/api/auth/signin",      // 개별적으로 명시
-                                        "api/auth/email",
-                                        "api/auth/email/verify",
+                                        "/api/auth/email",
+                                        "/api/auth/email/verify",
                                         "/api/auth/register",
                                         "/api/auth/refresh",
                                         "/api/auth/logout",
