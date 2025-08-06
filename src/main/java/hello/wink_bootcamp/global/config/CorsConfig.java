@@ -21,9 +21,9 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         //  운영 도메인만 허용
-        configuration.setAllowedOrigins(Arrays.asList(
+        configuration.setAllowedOriginPatterns(Arrays.asList(
                 "https://suntcamp-auth.junhwan.me",
-                "http://suntcamp-auth.junhwan.me"   // HTTP도 필요하다면
+                "http://suntcamp-auth.junhwan.me"
         ));
 
         //  모든 HTTP 메서드 허용
