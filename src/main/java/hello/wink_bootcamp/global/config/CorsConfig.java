@@ -20,31 +20,35 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🌐 모든 Origin 허용 (개발환경용)
-        configuration.setAllowedOriginPatterns(List.of("*"));
-
-        // 📡 모든 HTTP 메서드 허용
-        configuration.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"
+        //  운영 도메인만 허용
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://suntcamp-auth.junhwan.me",
+                "http://suntcamp-auth.junhwan.me"   // HTTP도 필요하다면
         ));
 
-        // 📋 모든 헤더 허용
-        configuration.setAllowedHeaders(List.of("*"));
+        //  모든 HTTP 메서드 허용
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
 
-        // 🔐 인증 정보 포함 허용
-        configuration.setAllowCredentials(true);
-
-        // ⏰ Preflight 캐시 시간
-        configuration.setMaxAge(3600L);
-
-        // 📤 클라이언트 접근 가능 헤더
-        configuration.setExposedHeaders(Arrays.asList(
+        // 필요한 헤더 허용
+        configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
-                "X-Requested-With",
-                "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Credentials"
+                "X-Requested-With"
         ));
+
+        //  인증 정보 포함 허용
+        configuration.setAllowCredentials(true);
+
+        //  Preflight 캐시 시간
+        configuration.setMaxAge(3600L);
+
+        //  클라이언트 접근 가능 헤더
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization"
+        ));
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
