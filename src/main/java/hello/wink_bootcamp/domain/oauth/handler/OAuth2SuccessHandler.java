@@ -93,7 +93,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                     HttpServletRequest request,
                                     HttpServletResponse response) throws IOException {
 
-        String redirectUri = "http://auth.junhwan.me/hello"
+        String redirectUri = "http://suntcamp-auth.junhwan.me/home"
                 + "?accessToken=" + accessToken
                 + "&refreshToken=" + refreshToken
                 + "&message=login_success";
