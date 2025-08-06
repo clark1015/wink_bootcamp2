@@ -59,6 +59,9 @@ public class SecurityConfig {
                         .authorizationEndpoint(authorization ->
                                 authorization.baseUri("/oauth2/authorization")  // OAuth2 시작점을 명확히 설정
                         )
+                        .redirectionEndpoint(redirection ->
+                                redirection.baseUri("/login/oauth2/code/*")     // "콜백은 여기서만!"
+                        )
                         .userInfoEndpoint(userinfo -> userinfo
                                 .userService(customOAuth2UserService)
                         )
