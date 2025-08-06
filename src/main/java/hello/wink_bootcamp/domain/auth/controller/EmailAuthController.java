@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailAuthController {
     private final EmailAuthService emailAuthService;
 
-    @PostMapping("/email")
+    @PostMapping("/email/send")
     public ResponseEntity<EmailSendResponse> sendEmailCode(@Valid @RequestBody EmailSendRequest request) {
         //이메일로 인증 코드 보내기
         emailAuthService.sendVerificationCode(request.email());
