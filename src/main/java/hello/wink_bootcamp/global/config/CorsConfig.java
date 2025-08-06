@@ -20,8 +20,9 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        //  운영 도메인만 허용
+        //  운영 도메인만 허용 + 테스트를 위한 기능 열어두기
         configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:3000",
                 "https://suntcamp-auth.junhwan.me",
                 "http://suntcamp-auth.junhwan.me"
         ));
@@ -35,7 +36,8 @@ public class CorsConfig {
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
-                "X-Requested-With"
+                "X-Requested-With",
+                "*"
         ));
 
         //  인증 정보 포함 허용
