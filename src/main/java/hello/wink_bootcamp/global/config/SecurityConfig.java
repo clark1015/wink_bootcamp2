@@ -71,6 +71,7 @@ public class SecurityConfig {
 
     }
 
+
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenProvider, tokenBlackListService);
