@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/auth/signin",      // 개별적으로 명시
                                         "/api/auth/email",
+                                        "/api/auth/email/send", //프론트용
                                         "/api/auth/email/verify",
                                         "/api/auth/register",
                                         "/api/auth/refresh",
@@ -55,7 +56,6 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/kakao")  // 명시적 로그인 페이지 설정
                         .authorizationEndpoint(authorization ->
                                 authorization.baseUri("/oauth2/authorization")  // OAuth2 시작점을 명확히 설정
                         )
